@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "mining_truck.h"
+#include "unload_station.h"
 
 namespace test {
 
@@ -86,10 +87,79 @@ void test_mining_truck() {
 				"State is TravelingToSite after start_travel_to_site");
 }
 
+void test_unload_station() {
+	test::beginSuite("UnloadStation");
+
+    // Idle station,truck served immediately
+    {
+        helium3::UnloadStation station(1);
+        test::check(!station.is_busy(), "Station starts idle");
+        test::check(test::near(station.projected_wait_time(0.0), 0.0),
+                    "projectedWaitTime = 0 when idle");
+
+        helium3::MiningTruck truck(1);
+        // Get truck to WaitingInQueue
+        truck.start_mining(0.0, 30.0);
+        truck.start_travel_to_station(30.0);
+
+        double startTime = station.enqueue_truck(&truck, 60.0);
+        test::check(test::near(startTime, 60.0),
+                    "Idle station: unload starts immediately");
+        test::check(station.is_busy(), "Station is busy after enqueue");
+        test::check(test::near(station.free_at(), 60.0 + helium3::UNLOAD_TIME_MIN),
+                    "free_at = enqueueTime + UNLOAD_TIME_MIN");
+    }
+
+    // Queue, second truck waits
+    {
+        helium3::UnloadStation station(2);
+        helium3::MiningTruck t1(1);
+		helium3::MiningTruck t2(2);
+
+        // Put trucks into TravelingToStation
+        t1.start_mining(0.0, 30.0);
+		t1.start_travel_to_station(30.0);
+        t2.start_mining(0.0, 30.0);
+		t2.start_travel_to_station(30.0);
+
+        double s1 = station.enqueue_truck(&t1, 60.0);
+        double s2 = station.enqueue_truck(&t2, 61.0);
+
+        test::check(test::near(s1, 60.0), "First truck starts at arrival time");
+        test::check(test::near(s2, 60.0 + helium3::UNLOAD_TIME_MIN),
+                    "Second truck starts after first finishes");
+    }
+
+    // Completing a truck advances queue
+    {
+        helium3::UnloadStation station(3);
+        helium3::MiningTruck t1(1);
+		helium3::MiningTruck t2(2);
+
+        t1.start_mining(0.0, 30.0);
+		t1.start_travel_to_station(30.0);
+        t2.start_mining(0.0, 30.0);
+		t2.start_travel_to_station(30.0);
+
+        station.enqueue_truck(&t1, 60.0);
+        station.enqueue_truck(&t2, 60.0);
+
+        // Complete t1
+        helium3::MiningTruck* next = station.complete_current_unload(65.0);
+        test::check(next == &t2, "completeCurrentUnload returns next queued truck");
+        test::check(station.is_busy(), "Station still busy after first unload");
+
+        // Complete t2
+        helium3::MiningTruck* empty = station.complete_current_unload(70.0);
+        test::check(empty == nullptr, "Station idle after last truck departs");
+        test::check(!station.is_busy(), "Station not busy when queue empty");
+    }
+}
 int main() {
-    std::cout << "Lunar Helium-3 Mining Simulation Tests\n";
+    std::cout << "Helium-3 Mining Simulation Tests\n";
 
 	test_mining_truck();
+	test_unload_station();
 
 	test::print_summary();
 

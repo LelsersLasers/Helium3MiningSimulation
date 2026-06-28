@@ -31,15 +31,15 @@ public:
 
     // Accessors
     int32_t id() const;
-    bool isBusy() const;
-    double freeAt() const;
+    bool is_busy() const;
+    double free_at() const;
 
     // Accumulate partial-period stats at simulation end
     void finalise(double now);
 
 private:
     // Begin unloading the front of the queue
-    void start_unloading(MiningTruck* truck, double start_time);
+    void start_unloading(double start_time);
 
     int32_t id_;
     MiningTruck* current_truck_ = nullptr;
