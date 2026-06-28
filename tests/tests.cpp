@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "mining_truck.h"
+#include "simulator.h"
 #include "unload_station.h"
 
 namespace test {
@@ -28,7 +29,7 @@ namespace test {
 
 	// Print name of test suite as a header
 	void beginSuite(const std::string& name) {
-		std::cout << "\n=== " << name << " ===\n";
+		std::cout << "\n " << name << " ======\n";
 	}
 
 	// Print summary of passed/failed results
@@ -196,11 +197,124 @@ void test_unload_station() {
         test::check(test::near(s.utilisation, 5.0),  "utilisation = 5% (5/100)");
     }
 }
+
+void test_simulator(){
+    test::beginSuite("End-to-End Simulation");
+
+    // Same seed produces same results
+    {
+        helium3::SimConfig cfg;
+        cfg.num_trucks   = 5;
+        cfg.num_stations = 2;
+        cfg.random_seed  = 1234;
+
+        helium3::Simulator sim1(cfg);
+		helium3::Simulator sim2(cfg);
+        sim1.run();
+        sim2.run();
+
+        size_t trips1 = 0;
+		size_t trips2 = 0;
+        for (const auto& t : sim1.trucks()) {
+			trips1 += t->stats(helium3::SIMULATION_DURATION_MIN).trips_completed;
+		}
+        for (const auto& t : sim2.trucks()) {
+			trips2 += t->stats(helium3::SIMULATION_DURATION_MIN).trips_completed;
+		}
+
+        test::check(trips1 == trips2, "Same seed, same total trips");
+    }
+
+    // Sum of all time slots == sim duration per truck
+    {
+        helium3::SimConfig cfg;
+        cfg.num_trucks   = 8;
+        cfg.num_stations = 2;
+        cfg.random_seed  = 999;
+
+        helium3::Simulator sim(cfg);
+        sim.run();
+
+        bool all_balanced = true;
+        for (const auto& t : sim.trucks()) {
+            auto s = t->stats(helium3::SIMULATION_DURATION_MIN);
+            double sum = s.total_mining_min + s.total_travel_min
+                       + s.total_queue_min  + s.total_unload_min;
+            if (!test::near(sum, helium3::SIMULATION_DURATION_MIN, 1.0)) {
+                all_balanced = false;
+                std::cout << "    Truck #" << s.id
+                          << " sum=" << sum
+                          << " expected=" << helium3::SIMULATION_DURATION_MIN << '\n';
+            }
+        }
+        test::check(all_balanced,
+                    "Each truck's time slices sum to SIMULATION_DURATION_MIN");
+    }
+
+    // No truck sits idle the entire time
+    {
+        helium3::SimConfig cfg;
+        cfg.num_trucks   = 3;
+        cfg.num_stations = 3;
+        cfg.random_seed  = 7;
+
+        helium3::Simulator sim(cfg);
+        sim.run();
+
+        bool all_did = true;
+        for (const auto& t : sim.trucks()) {
+            if (t->stats(helium3::SIMULATION_DURATION_MIN).trips_completed == 0) {
+                all_did = false;
+            }
+        }
+        test::check(all_did, "Every truck completes at least one trip");
+    }
+
+    // Non-standard case, 1 truck, 1 station
+    {
+        helium3::SimConfig cfg;
+        cfg.num_trucks   = 1;
+        cfg.num_stations = 1;
+        cfg.random_seed  = 1;
+
+        helium3::Simulator sim(cfg);
+        sim.run();
+
+        auto s = sim.trucks()[0]->stats(helium3::SIMULATION_DURATION_MIN);
+        test::check(s.trips_completed >= 1, "1-truck 1-station: at least 1 trip");
+        test::check(s.total_queue_min < 1.0,
+                    "1-truck 1-station: no queuing (station always free)");
+    }
+
+    // Station serviced count = truck trip count
+    {
+        helium3::SimConfig cfg;
+        cfg.num_trucks   = 4;
+        cfg.num_stations = 2;
+        cfg.random_seed  = 321;
+
+        helium3::Simulator sim(cfg);
+        sim.run();
+
+        size_t truck_trips = 0;
+		size_t station_serviced = 0;
+        for (const auto& t : sim.trucks())
+            truck_trips += t->stats(helium3::SIMULATION_DURATION_MIN).trips_completed;
+        for (const auto& s : sim.stations())
+            station_serviced += s->stats(helium3::SIMULATION_DURATION_MIN).trucks_serviced;
+
+        test::check(truck_trips == station_serviced,
+                    "Total truck trips == total station services");
+    }
+}
+
+
 int main() {
     std::cout << "Helium-3 Mining Simulation Tests\n";
 
 	test_mining_truck();
 	test_unload_station();
+	test_simulator();
 
 	test::print_summary();
 

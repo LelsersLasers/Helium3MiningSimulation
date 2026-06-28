@@ -10,7 +10,7 @@ namespace helium3 {
 
 namespace reporter_helpers {
 
-std::string fmt_min(double minutes) {
+std::string fmt_minutes(double minutes) {
     int h = static_cast<int>(minutes) / 60;
     int m = static_cast<int>(minutes) % 60;
     std::ostringstream oss;

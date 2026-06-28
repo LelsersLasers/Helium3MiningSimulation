@@ -11,6 +11,10 @@
 
 namespace helium3 {
 
+bool Event::operator>(const Event& o) const {
+    return time > o.time;
+}
+
 Simulator::Simulator(SimConfig cfg)
     : cfg_(cfg) {
 
