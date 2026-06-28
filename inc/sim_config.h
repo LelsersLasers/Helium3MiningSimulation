@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 namespace helium3 {
 
@@ -24,10 +25,11 @@ enum class TruckState {
 };
 
 // Simulation configuration
+
 struct SimConfig {
     size_t num_trucks;
     size_t num_stations;
-    uint32_t random_seed = 42u; // < 0 = use random_device
+    std::optional<uint32_t> random_seed; // If not set, use a random seed
 };
 
 } // namespace helium3
