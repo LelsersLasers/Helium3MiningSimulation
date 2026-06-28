@@ -9,7 +9,6 @@
 #include "sim_config.h"
 #include "mining_truck.h"
 #include "unload_station.h"
-#include "scheduler.h"
 
 
 namespace helium3 {
@@ -43,7 +42,7 @@ public:
     /**
      * @brief Print a formatted report to standard output after run() completes.
      */
-    void printReport() const;
+    void print_report() const;
 
     // Helpers/exposers for unit tests
     const std::vector<std::unique_ptr<MiningTruck>>&   trucks()   const { return trucks_; }
@@ -68,7 +67,6 @@ private:
     // Simulation state
     std::vector<std::unique_ptr<MiningTruck>>   trucks_;
     std::vector<std::unique_ptr<UnloadStation>> stations_;
-    std::unique_ptr<Scheduler>                  scheduler_;
 
     // Smallest/earliest time at top (min-heap priority queue)
     using EventQueue = std::priority_queue<Event,
@@ -78,7 +76,7 @@ private:
 
     // RNG
     std::mt19937                         rng_;
-    std::uniform_real_distribution<double> miningDist_{
+    std::uniform_real_distribution<double> mining_dist_{
         MIN_MINE_TIME_MIN, MAX_MINE_TIME_MIN};
 
     // Protection against double calling run()

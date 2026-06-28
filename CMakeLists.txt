@@ -16,6 +16,7 @@ add_library(helium_3_mining_sim_core STATIC
     src/mining_truck.cpp
     src/unload_station.cpp
     src/stats_reporter.cpp
+    src/simulator.cpp
 )
 target_include_directories(helium_3_mining_sim_core PUBLIC inc)
 
