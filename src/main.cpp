@@ -1,6 +1,9 @@
 #include <iostream>
 
+#include "sample_lib.h"
+
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    int sample_sum = sample_lib::add(2, 3);
+    std::cout << "Sample sum: " << sample_sum << std::endl;
     return 0;
 }

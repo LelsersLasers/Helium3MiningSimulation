@@ -9,6 +9,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-add_executable(helium_3_mining_sim
-    src/main.cpp
+# Core system
+# Build core as a static lib so the main executable and test executables can
+# link against the same compiled core
+add_library(helium_3_mining_sim_core STATIC
+    src/sample_lib.cpp
 )
+target_include_directories(helium_3_mining_sim_core PUBLIC inc)
+
+# Main executable
+add_executable(helium_3_mining_sim src/main.cpp)
+target_link_libraries(helium_3_mining_sim PRIVATE helium_3_mining_sim_core)
+
+# Test executable
+add_executable(helium_3_mining_sim_tests tests/tests.cpp)
+target_link_libraries(helium_3_mining_sim_tests PRIVATE helium_3_mining_sim_core)
