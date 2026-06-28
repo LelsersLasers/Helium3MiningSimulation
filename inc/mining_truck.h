@@ -10,7 +10,7 @@ class UnloadStation;
 
 class MiningTruck {
 public:
-    explicit MiningTruck(int id);
+    explicit MiningTruck(int32_t id);
 
     // State transitions
 
@@ -30,19 +30,28 @@ public:
     double start_travel_to_site(double current_time);
 
     // Accessors
-    int32_t id();
-    TruckState state();
-    double next_event_time();
-    UnloadStation* assigned_station();
+    int32_t id() const;
+    TruckState state() const;
+    double next_event_time() const;
+    UnloadStation* assigned_station() const;
 
-    // Finalise partial-period stats at simulation end
+    // Accumulate partial-period stats at simulation end
     void finalise(double now);
 
 private:
+    // State
     int32_t id_;
-    TruckState state_               = TruckState::Mining;
-    double nextEventTime_           = 0.0;
-    UnloadStation* assignedStation_ = nullptr;
+    TruckState state_                = TruckState::Mining;
+    double next_event_time_          = 0.0;
+    UnloadStation* assigned_station_ = nullptr;
+    double state_entered_at_         = 0.0;
+
+    // Time and stats tracking
+    double total_mining_min_  = 0.0;
+    double total_travel_min_  = 0.0;
+    double total_queue_min_   = 0.0;
+    double total_unload_min_  = 0.0;
+    int trips_completed_  = 0;
 };
 
 } // namespace helium3
