@@ -1,7 +1,6 @@
 #ifndef HELIUM3_SIM_TYPES_H
 #define HELIUM3_SIM_TYPES_H
 
-#include <cstddef>
 #include <cstdint>
 #include <optional>
 

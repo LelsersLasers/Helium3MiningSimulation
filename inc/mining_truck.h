@@ -1,6 +1,9 @@
 #ifndef HELIUM3_MINING_TRUCK_H
 #define HELIUM3_MINING_TRUCK_H
 
+#include <cstddef>
+#include <cstdint>
+
 #include "sim_config.h"
 
 namespace helium3 {
@@ -51,7 +54,7 @@ private:
     double total_travel_min_  = 0.0;
     double total_queue_min_   = 0.0;
     double total_unload_min_  = 0.0;
-    int trips_completed_  = 0;
+    size_t trips_completed_   = 0;
 };
 
 } // namespace helium3
