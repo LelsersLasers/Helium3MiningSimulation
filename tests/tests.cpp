@@ -44,14 +44,52 @@ namespace test {
 } // namespace test
 
 
-void test_sample_lib() {
-	test::beginSuite("Sample Library Tests");
+void test_mining_truck() {
+    test::beginSuite("MiningTruck");
+
+	// Initial state
+	helium3::MiningTruck truck(1);
+	test::check(truck.state() == helium3::TruckState::Mining,
+				"Initial state is Mining");
+
+	// Start mining for 120 minutes
+	double done = truck.start_mining(0.0, 120.0);
+	test::check(test::near(done, 120.0),
+				"start_mining returns correct finish time");
+	test::check(truck.state() == helium3::TruckState::Mining,
+				"State remains Mining after start_mining");
+
+	// Travel to station
+	double arrival = truck.start_travel_to_station(120.0);
+	test::check(test::near(arrival, 120.0 + helium3::TRAVEL_TIME_MIN),
+				"Travel arrival time = miningDone + TRAVEL_TIME_MIN");
+	test::check(truck.state() == helium3::TruckState::TravelingToStation,
+				"State is TravelingToStation after start_travel_to_station");
+
+	// Join queue
+	truck.join_queue(nullptr, 150.0, 150.0);
+	test::check(truck.state() == helium3::TruckState::WaitingInQueue,
+				"State is WaitingInQueue after join_queue");
+
+	// Start unloading
+	double unloadDone = truck.start_unloading(150.0);
+	test::check(test::near(unloadDone, 150.0 + helium3::UNLOAD_TIME_MIN),
+				"Unload finish = start + UNLOAD_TIME_MIN");
+	test::check(truck.state() == helium3::TruckState::Unloading,
+				"State is Unloading after start_unloading");
+	
+	// Travel back to site
+	double siteArrival = truck.start_travel_to_site(155.0);
+	test::check(test::near(siteArrival, 155.0 + helium3::TRAVEL_TIME_MIN),
+				"Site arrival = unloadDone + TRAVEL_TIME_MIN");
+	test::check(truck.state() == helium3::TruckState::TravelingToSite,
+				"State is TravelingToSite after start_travel_to_site");
 }
 
 int main() {
     std::cout << "Lunar Helium-3 Mining Simulation Tests\n";
 
-	test_sample_lib();
+	test_mining_truck();
 
 	test::print_summary();
 
