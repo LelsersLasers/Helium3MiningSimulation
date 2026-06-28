@@ -54,6 +54,13 @@ private:
     double random_mining_duration();
     void schedule_event(double time, MiningTruck* truck, TruckState next);
     void process_event(const Event& ev);
+
+    // State transition handlers
+    void handle_arrival_at_station(MiningTruck* truck, double now);
+    void handle_start_unloading(MiningTruck* truck, double now);
+    void handle_unload_complete(MiningTruck* truck, double now);
+    void handle_arrival_at_site(MiningTruck* truck, double now);
+    void handle_mining_complete(MiningTruck* truck, double now);
     
     // Simulation configuration
     SimConfig cfg_;
