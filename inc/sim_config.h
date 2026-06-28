@@ -25,11 +25,10 @@ enum class TruckState {
 };
 
 // Simulation configuration
-
 struct SimConfig {
-    size_t num_trucks;
-    size_t num_stations;
-    std::optional<uint32_t> random_seed; // If not set, use a random seed
+    int32_t num_trucks                  = 10;
+    int32_t num_stations                = 2;
+    std::optional<uint32_t> random_seed = std::nullopt; // If nullopt, use a random seed
 };
 
 } // namespace helium3
