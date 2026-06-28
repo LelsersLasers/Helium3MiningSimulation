@@ -79,4 +79,18 @@ void UnloadStation::finalise(double now) {
     // added by start_unloading()
 }
 
+UnloadStationStats UnloadStation::stats(double simulation_duration) const {
+    UnloadStationStats s;
+    s.id                   = id_;
+    s.trucks_serviced      = trucks_serviced_;
+    s.total_busy_min       = total_busy_min_;
+    s.total_idle_min       = total_idle_min_;
+    s.utilisation          = (simulation_duration > 0.0)
+                             ? (total_busy_min_ / simulation_duration) * 100.0
+                             : 0.0;
+    s.max_queue_depth      = max_queue_depth_;
+    s.total_queue_wait_min = total_queue_wait_min_;
+    return s;
+}
+
 } // namespace helium3

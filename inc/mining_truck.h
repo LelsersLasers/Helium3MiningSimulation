@@ -11,6 +11,16 @@ namespace helium3 {
 // Forward declaration
 class UnloadStation;
 
+struct MiningTruckStats {
+    int32_t id               = 0;
+    size_t trips_completed   = 0;
+    double total_mining_min  = 0.0;
+    double total_travel_min  = 0.0;
+    double total_queue_min   = 0.0;
+    double total_unload_min  = 0.0;
+    double mining_efficiency = 0.0;
+};
+
 class MiningTruck {
 public:
     explicit MiningTruck(int32_t id);
@@ -40,6 +50,9 @@ public:
 
     // Accumulate partial-period stats at simulation end
     void finalise(double now);
+
+    // Return statics for this truck, based on the simulation duration.
+    MiningTruckStats stats(double simulation_duration) const;
 
 private:
     // State

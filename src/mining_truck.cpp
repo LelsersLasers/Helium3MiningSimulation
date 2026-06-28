@@ -90,4 +90,18 @@ void MiningTruck::finalise(double now) {
     }
 }
 
+MiningTruckStats MiningTruck::stats(double simulation_duration) const {
+    MiningTruckStats s;
+    s.id                = id_;
+    s.trips_completed   = trips_completed_;
+    s.total_mining_min  = total_mining_min_;
+    s.total_travel_min  = total_travel_min_;
+    s.total_queue_min   = total_queue_min_;
+    s.total_unload_min  = total_unload_min_;
+    s.mining_efficiency = (simulation_duration > 0.0)
+                          ? (total_mining_min_ / simulation_duration) * 100.0
+                          : 0.0;
+    return s;
+}
+
 } // namespace helium3
