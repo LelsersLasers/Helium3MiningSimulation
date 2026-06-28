@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "sample_lib.h"
+#include "mining_truck.h"
 
 namespace test {
 
@@ -46,9 +46,6 @@ namespace test {
 
 void test_sample_lib() {
 	test::beginSuite("Sample Library Tests");
-	test::check(sample_lib::add(2, 3) == 5, "2 + 3 == 5");
-	test::check(sample_lib::add(-1, 1) == 0, "-1 + 1 == 0");
-	test::check(sample_lib::add(0, 0) == 0, "0 + 0 == 0");
 }
 
 int main() {
