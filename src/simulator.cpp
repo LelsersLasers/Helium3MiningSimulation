@@ -40,7 +40,15 @@ Simulator::Simulator(SimConfig cfg)
     }
 }
 
-// ---------------------------------------------------------------------------
+const std::vector<std::unique_ptr<MiningTruck>>& Simulator::trucks() const { 
+    return trucks_; 
+}
+
+const std::vector<std::unique_ptr<UnloadStation>>& Simulator::stations() const { 
+    return stations_; 
+}
+
+
 void Simulator::run() {
     assert(!ran_ && "Simulator::run() called more than once");
     ran_ = true;
@@ -74,7 +82,6 @@ void Simulator::run() {
     }
 }
 
-// ---------------------------------------------------------------------------
 void Simulator::process_event(const Event& ev) {
     MiningTruck* truck = ev.truck;
     double now         = ev.time;
@@ -151,7 +158,6 @@ double Simulator::random_mining_duration() {
     return mining_dist_(rng_);
 }
 
-// ---------------------------------------------------------------------------
 void Simulator::print_report() const {
     assert(ran_ && "Call run() before printReport()");
 

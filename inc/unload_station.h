@@ -10,44 +10,102 @@ namespace helium3 {
 // Forward declaration
 class MiningTruck;
 
+/**
+ * @brief Aggregated statistics for an unload station.
+ *
+ * Populated after simulation completion and used for reporting.
+ */
 struct UnloadStationStats {
-    int32_t id                  = 0;
-    size_t trucks_serviced      = 0;
-    double total_busy_min       = 0.0;
-    double total_idle_min       = 0.0;
-    double utilisation          = 0.0;
-    size_t max_queue_depth      = 0;
+    /** Station identifier used for reporting and tie-breaking. */
+    int32_t id = 0;
+
+    /** Number of trucks fully serviced by this station. */
+    size_t trucks_serviced = 0;
+
+    /** Total minutes station was busy unloading trucks. */
+    double total_busy_min = 0.0;
+
+    /** Total minutes station was idle. */
+    double total_idle_min = 0.0;
+
+    /** Station utilisation as percentage of the simulation duration. */
+    double utilisation = 0.0;
+
+    /** Maximum observed queue depth at this station. */
+    size_t max_queue_depth = 0;
+
+    /** Total minutes trucks spent waiting in this station's queue. */
     double total_queue_wait_min = 0.0;
 };
 
+/**
+ * @brief Represents an unload station with a queue of trucks.
+ *
+ * Handles a FIFO queue of trucks, schedules unloading events and accumulates
+ * station statistics used by the reporting system.
+ */
 class UnloadStation {
 public:
     explicit UnloadStation(int32_t id);
 
-    // Return the time (from now) until an arriving truck would begin unloading,
-	// assuming no additional trucks join this queue.
+    /**
+     * @brief Get the projected wait time for an arriving truck.
+     *
+     * This returns the time (in minutes) from current_time until the
+     * next available unloading slot, assuming no additional arrivals.
+     *
+     * @param current_time Current simulation time in minutes.
+     * @return Minutes until an arriving truck would begin unloading.
+     */
     double projected_wait_time(double current_time) const;
 
-	// Add a truck to this station's queue at the given arrival time. If the
-	// station is idle, the truck will begin unloading immediatel.
-	// Returns the simulation time at which the truck will start unloading.
+    /**
+     * @brief Enqueue a truck at this station.
+     *
+     * If the station is idle the truck will start unloading immediately.
+     * Otherwise it will be placed at the end of the wait queue.
+     *
+     * @param truck Pointer to the MiningTruck arriving.
+     * @param arrival_time Simulation time when the truck arrives.
+     * @return Scheduled simulation time when the truck will begin unloading.
+     */
     double enqueue_truck(MiningTruck* truck, double arrival_time);
 
-	// Called when the current unload finishes. Advances the queue and schedules
-	// the next truck.
-	// Returns a pointer to the next truck (now unloading), or nullptr if the queue
-	// is empty.
+    /**
+     * @brief Complete the current unload and advance the queue.
+     *
+     * Called when the currently unloading truck finishes. Updates internal
+     * counters and, if a queued truck exists, starts its unloading.
+     *
+     * @param finish_time Simulation time when the unload finished.
+     * @return Pointer to the truck which now begins unloading, or nullptr
+     *         if the queue was empty.
+     */
     MiningTruck* complete_current_unload(double finish_time);
 
     // Accessors
+    /** @brief Station identifier. */
     int32_t id() const;
+
+    /** @brief True if a truck is currently unloading. */
     bool is_busy() const;
+
+    /** @brief Time (simulation minutes) when the station will next be free. */
     double free_at() const;
 
-    // Accumulate partial-period stats at simulation end
+    /**
+     * @brief Accumulate partial-period station stats at simulation end.
+     *
+     * @param now Simulation end time in minutes.
+     */
     void finalise(double now);
 
-    // Return statics for this station, based on the simulation duration.
+    /**
+     * @brief Return aggregated statistics for this station.
+     *
+     * @param simulation_duration Total simulation duration in minutes.
+     * @return UnloadStationStats populated for reporting.
+     */
     UnloadStationStats stats(double simulation_duration) const;
 
 private:

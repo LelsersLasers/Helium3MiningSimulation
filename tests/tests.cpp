@@ -298,10 +298,12 @@ void test_simulator(){
 
         size_t truck_trips = 0;
 		size_t station_serviced = 0;
-        for (const auto& t : sim.trucks())
+        for (const auto& t : sim.trucks()) {
             truck_trips += t->stats(helium3::SIMULATION_DURATION_MIN).trips_completed;
-        for (const auto& s : sim.stations())
+        }
+        for (const auto& s : sim.stations()) {
             station_serviced += s->stats(helium3::SIMULATION_DURATION_MIN).trucks_serviced;
+        }
 
         test::check(truck_trips == station_serviced,
                     "Total truck trips == total station services");

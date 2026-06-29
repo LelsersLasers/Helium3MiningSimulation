@@ -13,22 +13,43 @@
 
 namespace helium3 {
 
-// Internal event type
+/**
+ * @brief Internal event representation used by the event queue.
+ *
+ * Events schedule state transitions for trucks at given simulation times.
+ * Implements comparison operator for use in a priority queue.
+ */
 struct Event {
-    double       time  = 0.0;
-    MiningTruck* truck = nullptr;
-    TruckState   next_state = TruckState::Mining;
+    /** Scheduled simulation time for the event (minutes). */
+    double time  = 0.0;
 
-    // Smallest time first; min-heap comparator
+    /** Truck that the event concerns. */
+    MiningTruck* truck = nullptr;
+
+    /** State the truck will transition to when the event triggers. */
+    TruckState next_state = TruckState::Mining;
+
+    /**
+     * @brief Comparator used by the priority queue.
+     *
+     * Returns true if this event is later than o (so the priority
+     * queue orders smallest time first).
+     */
     bool operator>(const Event& o) const;
 };
 
+/**
+ * @brief Discrete-event simulator for the mining operation.
+ *
+ * Intendd use: construct with a SimConfig, call run() exactly once to execute
+ * the simulation, then use print_report() to display results.
+ */
 class Simulator {
 public:
     explicit Simulator(SimConfig cfg);
     ~Simulator() = default;
 
-    // Non-copyable
+    // Non-copyable, owns unique_ptrs to trucks and stations
     Simulator(const Simulator&)            = delete;
     Simulator& operator=(const Simulator&) = delete;
 
@@ -45,8 +66,11 @@ public:
     void print_report() const;
 
     // Helpers/exposers for unit tests
-    const std::vector<std::unique_ptr<MiningTruck>>&   trucks()   const { return trucks_; }
-    const std::vector<std::unique_ptr<UnloadStation>>& stations() const { return stations_; }
+    /** @brief Access the collection of trucks (for tests). */
+    const std::vector<std::unique_ptr<MiningTruck>>& trucks() const;
+
+    /** @brief Access the collection of stations (for tests). */
+    const std::vector<std::unique_ptr<UnloadStation>>& stations() const;
 
 private:
     // Helpers
