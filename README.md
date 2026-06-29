@@ -62,3 +62,40 @@ Options:
 | Number of stations | -m | 2 |
 | Random seed | -s | random via `std::random_device` |
 
+## Design
+
+### Event-driven simulation
+
+```mermaid
+flowchart TD
+    subgraph Simulator
+        EventQueue["Priority Queue<br/>(Future Events)"]
+        Scheduler["Event Dispatcher"]
+        EventQueue --> Scheduler
+    end
+
+    Truck["MiningTruck"]
+    Station["UnloadStation"]
+
+    Scheduler --> Truck
+    Scheduler --> Station
+
+    Truck -->|Schedules next event| EventQueue
+    Station -->|Schedules truck start| EventQueue
+
+    Truck <-->|"join_queue() <br/> assigned_station()"| Station
+```
+
+### Mining Truck States
+
+```mermaid
+stateDiagram
+    [*] --> Mining : t = 0
+
+    Mining --> TravelingToStation : mining complete
+    TravelingToStation --> WaitingInQueue : arrival (t + 30 min)
+    WaitingInQueue --> Unloading : station free (t + wait)
+    Unloading --> TravelingToSite : done (t + 5 min)
+    TravelingToSite --> Mining : arrival (t + 30 min)
+```
+
