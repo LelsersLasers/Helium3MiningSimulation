@@ -99,3 +99,21 @@ stateDiagram
     TravelingToSite --> Mining : arrival (t + 30 min)
 ```
 
+### Code structure
+
+| Class/File | Responsibility |
+|-------|----------------|
+| `sim_config.h` | Constants, truct states definition, `SimConfig` |
+| `MiningTruck` | State machine; tracks time per state |
+| `UnloadStation` | FIFO queue; manages busy and idle transitions |
+| `Simulator` | Event loop; assignment logic; owns all entities |
+| `stats_reporter` | Formats and prints statistics |
+
+### Test coverage
+
+| Suite | What is tested |
+|-------|----------------|
+| `MiningTruck` | All state transitions; state durations accumulate correctly (mining, travel, queue, unloading) |
+| `UnloadStation` | Idle/busy transitions; projected wait time; FIFO queue ordering; queue advancement after unloading; utilization and busy/idle statistics |
+| `Simulator` | Determinism (same seed = same total trips); time accounting (per-truck state times sum to simulation duration); every truck completes at least one trip; single-truck and single-station edge case (no queueing); total truck trips == total station services |
+
