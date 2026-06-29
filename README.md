@@ -143,3 +143,17 @@ A trip in progress at t = simulation end is not counted (it didn't complete), bu
 | Max Queue | Deepest/longest observed waiting queue (excluding the truck being served) |
 | Avg Wait | `Total Queue Wait / Trucks Serviced` - Average wait from arrival to start of unload |
 
+
+## What I Could Add Given More Time
+
+1. Expand the output system to support JSON or CSV for easier integration into other tools for automated analysis
+2. Replace the simple test harness with a real unit testing framework like Google Test (and expand on the unit tests)
+3. Convert the hard-coded parameters into a configuration options (either via CLI flags or a config file)
+4. Introduce a more sophisticated model where mining sites and stations can have different locations (impacting travel times) and different properties (ex: mining duration, unload times, etc.)
+5. Different start-up modes for the simulation (ex: warm-up period or configurable pre-populated station lines, etc.)
+6. Add support for multiple queue assignment policies (ex: round-robin, random, etc)
+7. Optimization mode: fix certain simulation parameters and specific a cost function to search for the most optimal configuration of the remaining parameters
+
+## AI statement
+
+No chat or agent-based AI/LLMs were used to generate any part of this project. GitHub Copilot line completions were used to assist in writing the code.
