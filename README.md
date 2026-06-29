@@ -117,3 +117,29 @@ stateDiagram
 | `UnloadStation` | Idle/busy transitions; projected wait time; FIFO queue ordering; queue advancement after unloading; utilization and busy/idle statistics |
 | `Simulator` | Determinism (same seed = same total trips); time accounting (per-truck state times sum to simulation duration); every truck completes at least one trip; single-truck and single-station edge case (no queueing); total truck trips == total station services |
 
+## Statistics
+
+### Truck statistics
+
+| Column | Meaning |
+|--------|---------|
+| Trips | Complete mine -> unload cycles finished before sim end |
+| Mining | Cumulative time spent extracting Helium 3 |
+| Travel | Cumulative travel time (both directions) |
+| Queuing | Cumulative time waiting in a station queue |
+| Unloading | Cumulative time being unloaded |
+| Mine % | `(Mining / Simulation Duration) * 100` - Efficiency metric |
+
+A trip in progress at t = simulation end is not counted (it didn't complete), but the partial-period time is still included in the time columns.
+
+### Station statistics
+
+| Column | Meaning |
+|--------|---------|
+| Serviced | Trucks fully unloaded |
+| Busy | Total minutes actually unloading |
+| Idle | Total minutes with no truck present |
+| Util % | `Busy / Simulation Duration * 100` |
+| Max Queue | Deepest/longest observed waiting queue (excluding the truck being served) |
+| Avg Wait | `Total Queue Wait / Trucks Serviced` - Average wait from arrival to start of unload |
+
