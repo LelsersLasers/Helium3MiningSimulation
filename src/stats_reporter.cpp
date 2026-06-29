@@ -25,7 +25,7 @@ void hline(std::ostream& out, int width) {
 
 void section_header(std::ostream& out, const std::string& title) {
     hline(out);
-    out << "  " << title << '\n';
+    out << title << '\n';
     hline(out);
 }
 
@@ -47,7 +47,7 @@ void print(
     // Header
     out << '\n';
     out << std::string(reporter_helpers::DEFAULT_WIDTH, '=') << '\n';
-    out << "  LUNAR HE-3 MINING SIMULATION — FINAL REPORT\n";
+    out << "LUNAR HE-3 MINING SIMULATION - FINAL REPORT\n";
     out << std::string(reporter_helpers::DEFAULT_WIDTH, '=') << '\n';
     out << std::fixed << std::setprecision(1);
     out << "  Configuration : " << cfg.num_trucks   << " trucks, "

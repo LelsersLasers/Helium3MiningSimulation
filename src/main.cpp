@@ -1,9 +1,11 @@
-#include <cstdint>
 #include <iostream>
+#include <cstdint>
+#include <cstdlib>
 #include <cstring>
-
+#include <chrono>
 
 #include "sim_config.h"
+#include "simulator.h"
 
 
 static void printUsage(const char* program_name) {
@@ -12,7 +14,7 @@ static void printUsage(const char* program_name) {
         "\n"
         "  -n <trucks>     Number of mining trucks       (default: 10)\n"
         "  -m <stations>   Number of unload stations     (default: 2)\n"
-        "  -s <seed>       RNG seed (don't set = random)\n"
+        "  -s <seed>       RNG seed                      (default: random)\n"
         "  -h              Show this help\n"
         "\n"
         "Example:\n"
@@ -55,14 +57,27 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::cout << "Simulation Configuration:\n";
-    std::cout << "  Number of trucks: " << cfg.num_trucks << "\n";
-    std::cout << "  Number of stations: " << cfg.num_stations << "\n";
-    if (cfg.random_seed.has_value()) {
-        std::cout << "  RNG seed: " << cfg.random_seed.value() << "\n";
+    // Run the simulation
+    std::cout << "Lunar He-3 Mining Simulation starting...\n";
+    std::cout << "Trucks: " << cfg.num_trucks
+              << "  Stations: " << cfg.num_stations;
+    if (cfg.random_seed) {
+        std::cout << "  Seed: " << cfg.random_seed.value();
     } else {
-        std::cout << "  RNG seed: random\n";
+        std::cout << "  Seed: random";
     }
+    std::cout << "\n\n";
 
+    auto wall_start = std::chrono::high_resolution_clock::now();
+
+    helium3::Simulator sim(cfg);
+    sim.run();
+
+    auto wall_end = std::chrono::high_resolution_clock::now();
+    double wall_ms = std::chrono::duration<double, std::milli>(wall_end - wall_start).count();
+
+    sim.print_report();
+
+    std::cout << "Wall-clock execution time: " << wall_ms << " ms\n\n";
     return 0;
 }
